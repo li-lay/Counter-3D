@@ -42,7 +42,7 @@ function App() {
   })
 
   // Scale on mobile
-  const textScale = window.innerWidth <= 500 ? [0.5, 0.5, 0.5] : [1, 1, 1]
+  const textScale = window.innerWidth <= 500 ? [0.6, 0.6, 0.6] : [1, 1, 1]
 
   return (
     <>
@@ -77,7 +77,7 @@ function App() {
             </group>
           </PresentationControls>
 
-          <ContactShadows position={[0, -0.5, 0]} opacity={1} scale={10} blur={3} far={4} />
+          <ContactShadows position={[0, -0.5, 0]} opacity={1.3} scale={10} blur={3} far={4} />
           <Environment preset="city" />
 
         </Canvas>
