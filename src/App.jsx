@@ -1,14 +1,14 @@
 import { Canvas } from "@react-three/fiber";
-import { Loader, PresentationControls, Center, Environment, ContactShadows } from '@react-three/drei'
-import { useState, useRef, Suspense } from "react";
+import { PresentationControls, Center, Environment, ContactShadows } from '@react-three/drei'
+import { useState, useRef, useLayoutEffect } from "react";
 import { Text3D } from "@react-three/drei";
-import Kanit from "./assets/fonts/Kanit_Regular.json"
+import MonoFont from "./assets/fonts/Monomaniac One_Regular.json"
 
 
 // TODO:
 // 1.Load texture to text (optional) - DROPPED
 // 2.Drag reset position - DONE
-// 3.Center mesh on changes
+// 3.Center mesh on changes - DONE
 // 4.Put on Github Page - DONE
 // 5.Fix dragging on mobile - DONE
 // 6.Reside for mobile devices - DONE
@@ -29,20 +29,26 @@ function App() {
     setCount(0)
   }
 
-  // Move object a bit
-  window.addEventListener("mousemove", (e) => {
-    let x = e.clientX;
-    let y = e.clientY;
-    // let coor = "Coordinates: (" + x + "," + y + ")";
-    if (meshRef.current) {
-      meshRef.current.position.x = (0 - (x / (window.innerWidth * 10)))
-      meshRef.current.position.y = -(0 - (y / (window.innerHeight * 10)))
-    }
-    // console.log(coor)
-  })
+  const textScale = window.innerWidth <= 500 ? [0.5, 0.5, 0.5] : [1, 1, 1]
 
-  // Scale on mobile
-  const textScale = window.innerWidth <= 500 ? [0.6, 0.6, 0.6] : [1, 1, 1]
+  // Center on changes
+  useLayoutEffect(() => {
+    if (meshRef.current) {
+
+      let countLength = count.toString().length;
+      let textLength = textScale[0] === 1 ? -0.375 : -0.23
+      let minusLength = textScale[0] === 1 ? -0.3 : -0.2
+
+      if (count > 0) {
+        meshRef.current.position.x = (countLength - 1) * textLength
+      } else if (count < 0) {
+        meshRef.current.position.x = ((countLength - 2) * textLength) + minusLength
+      } else {
+        meshRef.current.position.x = 0
+      }
+
+    }
+  }, [count, textScale]);
 
   return (
     <>
@@ -60,24 +66,22 @@ function App() {
             cursor={false}
             config={{ mass: 2, tension: 500 }}
             snap={{ mass: 4, tension: 1500 }}
-            rotation={[0, 0.3, 0]}
+            rotation={[0, 0.2, 0]}
             polar={[-Math.PI / 3, Math.PI / 3]}
             azimuth={[-Math.PI / 1.4, Math.PI / 2]}
           >
 
             <group ref={meshRef}>
               <Center>
-                <Suspense fallback={null}>
-                  <Text3D font={Kanit} {...""} castShadow scale={textScale}>
-                    {count}
-                    <meshStandardMaterial color="#98971a" />
-                  </Text3D>
-                </Suspense>
+                <Text3D font={MonoFont} {...""} castShadow scale={textScale}>
+                  {count}
+                  <meshStandardMaterial color="#98971a" />
+                </Text3D>
               </Center>
             </group>
           </PresentationControls>
 
-          <ContactShadows position={[0, -0.5, 0]} opacity={1.3} scale={10} blur={3} far={4} />
+          <ContactShadows position={[0, -0.6, 0]} opacity={1.3} scale={10} blur={3} far={4} />
           <Environment preset="city" />
 
         </Canvas>
@@ -87,7 +91,6 @@ function App() {
           <button className="btn" role="button" onClick={() => { DecrementCount() }}>Decrement</button>
         </div>
       </div >
-      <Loader />
     </>
   )
 }
