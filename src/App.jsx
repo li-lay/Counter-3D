@@ -1,8 +1,7 @@
 import { Canvas } from "@react-three/fiber";
-import { PresentationControls, Center, Environment, ContactShadows } from '@react-three/drei'
-import { useState, useRef, useLayoutEffect } from "react";
-import { Text3D } from "@react-three/drei";
-import MonoFont from "./assets/fonts/Monomaniac One_Regular.json"
+import { PresentationControls, Center, Environment, ContactShadows, Loader } from '@react-three/drei'
+import { useState, useRef, useLayoutEffect, Suspense } from "react";
+import TextModel from "./TextModel"
 
 
 // TODO:
@@ -13,9 +12,12 @@ import MonoFont from "./assets/fonts/Monomaniac One_Regular.json"
 // 5.Fix dragging on mobile - DONE
 // 6.Reside for mobile devices - DONE
 
+
 function App() {
 
   const meshRef = useRef()
+
+  const textScale = window.innerWidth <= 500 ? [0.5, 0.5, 0.5] : [1, 1, 1]
 
   const [count, setCount] = useState(0);
   const IncrementCount = () => {
@@ -28,8 +30,6 @@ function App() {
   const ResetCount = () => {
     setCount(0)
   }
-
-  const textScale = window.innerWidth <= 500 ? [0.5, 0.5, 0.5] : [1, 1, 1]
 
   // Center on changes
   useLayoutEffect(() => {
@@ -54,7 +54,7 @@ function App() {
     <>
       <div id="canvas" >
         <Canvas shadows camera={{ position: [0, 0, 4], fov: 25 }} style={{ background: '#282828', touchAction: "none" }} >
-          <ambientLight intensity={0.5} />
+          <ambientLight intensity={0.1} />
           <spotLight
             position={[10, 10, 10]}
             angle={0.15}
@@ -70,21 +70,20 @@ function App() {
             polar={[-Math.PI / 3, Math.PI / 3]}
             azimuth={[-Math.PI / 1.4, Math.PI / 2]}
           >
-
             <group ref={meshRef}>
               <Center>
-                <Text3D font={MonoFont} {...""} castShadow scale={textScale}>
-                  {count}
-                  <meshStandardMaterial color="#98971a" />
-                </Text3D>
+                <Suspense fallback={null}>
+                  <TextModel count={count} textScale={textScale} />
+                </Suspense>
               </Center>
             </group>
           </PresentationControls>
 
           <ContactShadows position={[0, -0.6, 0]} opacity={1.3} scale={10} blur={3} far={4} />
-          <Environment preset="city" />
+          <Environment preset="sunset" />
 
         </Canvas>
+        <Loader />
         <div className="btn-container">
           <button className="btn" role="button" onClick={() => { IncrementCount() }}>Increment</button>
           <button className="btn reset" role="button" onClick={() => { ResetCount() }}>Reset</button>
